@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     int curfloat=0;
     int prefloat=0;
     boolean notResult=true;
+    boolean divByZero=false;
 
     public void reset(){
         preNum=0;
@@ -34,22 +35,28 @@ public class MainActivity extends AppCompatActivity {
         curfloat=0;
         prefloat=0;
         notResult=true;
+        divByZero=false;
     }
     public void display(){
-        if(nodiv==1 && curfloat<=4){
-            if(coef==10 && notResult)
-                workspace.setText(format("%d", (long) curNum));
-            else if(curfloat<=1 )
-                workspace.setText(format("%.1f", curNum));
-            else if(curfloat==2)
-                workspace.setText(format("%.2f", curNum));
-            else if(curfloat==3)
-                workspace.setText(format("%.3f", curNum));
-            else if(curfloat==4)
-                workspace.setText(format("%.4f", curNum));
-        }else
-            workspace.setText(format("%.5f", curNum));
-        test.setText(format("%.5f " + " %.5f" + " %.5f",preNum,curNum,res));
+        if(divByZero){
+            workspace.setText("Error");
+            reset();
+        }else{
+            if(nodiv==1 && curfloat<=4){
+                if(coef==10 && notResult)
+                    workspace.setText(format("%d", (long) curNum));
+                else if(curfloat<=1 )
+                    workspace.setText(format("%.1f", curNum));
+                else if(curfloat==2)
+                    workspace.setText(format("%.2f", curNum));
+                else if(curfloat==3)
+                    workspace.setText(format("%.3f", curNum));
+                else if(curfloat==4)
+                    workspace.setText(format("%.4f", curNum));
+            }else
+                workspace.setText(format("%.5f", curNum));
+        }
+        test.setText(format("%.5f " + " %.5f" + " %.5f"+ " %f",preNum,curNum,res,coef));
     }
     public void inputNumber(int i){
         if(coef==10)
@@ -59,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             coef/=10;
             curfloat+=1;
         }
+        notResult=true;
     }
     public void ans(){
         preNum=0;
@@ -66,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         tag="none";
         res=0;
         nodiv=1;
-        notResult=true;
     }
     public void calculate(){
         if((pretag.equals("none") || pretag.equals("plus")) && (tag.equals("plus") || tag.equals("minus")))
@@ -84,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
                 res+=preNum;
         }
         else if(pretag.equals("div")){
-            preNum/=curNum;
+            if(curNum!=0)
+                preNum/=curNum;
+            else{
+                divByZero=true;
+            }
             nodiv=0;
             if(tag.equals("plus") || tag.equals("minus"))
                 res+=preNum;
@@ -187,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 curNum=0;
                 coef=10;
+                nodiv=1;
+                curfloat=0;
                 display();
             }
         });
@@ -208,8 +221,10 @@ public class MainActivity extends AppCompatActivity {
                     else{
                         curNum=((long) ((curNum/(coef*10))/10))*coef*100;
                         coef*=10;
+                        curfloat-=1;
                     }
                 }
+                if(!notResult) reset();
                 display();
             }
         });
